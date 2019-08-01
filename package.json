@@ -1,0 +1,17 @@
+{
+  "name": "pwa-training",
+  "version": "1.0.0",
+  "description": "Progressive Webapp Training",
+  "author": "Alexander Pehm",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "browser-sync start --server --open --files \"**/*.js\" --files \"**/*.html\" --files \"**/*.css\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alepeh/pwa-training.git"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.26.7"
+  }
+}
