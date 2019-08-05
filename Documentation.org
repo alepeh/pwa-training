@@ -35,3 +35,82 @@ In order to become useful, add the following line under scripts in our package.j
 The above line will start a server (port 3000 by default) and watch all js, html and css files for changes.
 
 Test it by running npm run start.
+
+* Iteration 01 - Web components intro
+Web components is in general just a name for a set of API specifications that are implemented in modern
+web browaers. They allow you to create custom HTML tags that can be used in all modern web environments
+and with any JS library or framework that works with HTML.
+
+Four specifications are central to web components:
+- [[https://w3c.github.io/webcomponents/spec/custom/][Custom Elements]] Allows you to define your own html tags and their behaviour.
+- [[https://w3c.github.io/webcomponents/spec/shadow/][Shadow DOM]] Allows you to attach an encapsulated "shadow" DOM to your custom elements. As this is rendered
+seperately from the main DOM, scripting and styling here does not collide with the rest of the document.
+- [[https://html.spec.whatwg.org/multipage/scripting.html#the-template-element/][HTML Template]] The <template> and <slot> elements allow you to create fragments of markup that are not 
+interpreted by the browser during page load. You can use them to create the markup of your custom elements.
+- [[https://html.spec.whatwg.org/multipage/webappapis.html#integration-with-the-javascript-module-system][ES modules]] finally a standardized way to create and reuse modular pieces of code in JS
+
+Let's work on our first Custom Element.
+We create a =src= directory to hold all our source files and put a file named =rfk-app.js= in it.
+This will be the starting point for the application we are going to build.
+
+For custom elements, there are some naming conventions to follow.
+First, they need to contain a dash in their name, to distinguish them from built-in html tags.
+The first part can be used as "namespace" to distinguish components shipped by different developers from one another.
+This namespace part should not be shorter than 3 characters.
+In our case the namespace is rfk (or whatever you want) and as its the "root" of our app, we name it rfk-app.
+
+#+begin_example js
+//rfk-app.js
+class RfkApp extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+window.customElements.define('rfk-app', RfkApp);
+#+end_example
+
+This code is already a valid custom element, although it does not do anything yet.
+The first line in the constructor must always be the invocation of the superclass constructor.
+This is specific to custom elements and required by the spec
+Finally, we need to register our custom element, so that the browser knows which class realizes our
+=<rfk-app>= tag when it sees it in a document.
+
+Next, we go ahead and move our hello world greeting inside a template that we will clone in our element.
+
+#+begin_example html
+<!-- index.html -->
+ <template id="app-greeting">
+     <h1>Hello world</h1>
+ </template>
+#+end_example
+
+As templates are inert, when you run this code, nothing is displayed in the browser.
+For the greeting to be shown again, we will attach a shadow dom to our custom element and clone
+this template as a child of our shadow dom.
+
+#+begin_example js
+//rfk-app.js
+    constructor(){
+        super();
+        // Attach a new shadow root
+        const root = this.attachShadow({mode: "open"});
+        // Clone the template
+        const template = document.getElementById("app-greeting");
+        const templateContent = template.content;
+        // append the template 
+        root.appendChild(
+            templateContent.cloneNode(true)
+          );
+    }
+#+end_example
+
+Finally, we need to import our new js module and include our custom element in the body of our index.html.
+
+#+begin_example html
+<rfk-app></rfk-app>
+<!-- type="module" tells the browser to treat the script as an ES module -->
+<script src="src/rfk-app.js" type="module"></script>
+#+end_example
+
+
+
