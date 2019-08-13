@@ -13,5 +13,7 @@ class RfkApp extends HTMLElement {
             templateContent.cloneNode(true)
           );
     }
+
+
 }
 window.customElements.define('rfk-app', RfkApp);

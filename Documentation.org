@@ -112,5 +112,60 @@ Finally, we need to import our new js module and include our custom element in t
 <script src="src/rfk-app.js" type="module"></script>
 #+end_example
 
+* Iteration 02 - Web component testing
+Before we go on, we need to make sure that we can automatically test all our web components.
+We'll make use of the [[https://github.com/Polymer/tools/tree/master/packages/web-component-tester][Web Component Tester]] developed by the polymer folks.
+
+Let's add the necessary dev dependencies.
+
+=npm install --save-dev polymer-cli @polymer/test-fixture mocha chai wct-mocha=
+
+To test our only web component, we first create a test directory and add two files, index.html and rfk-app_test.html.
+Our index.html is used to load all the test suites that we are going to create. This is very handy
+as we can browse to this page at any time to see passing/failing tests in all test suites.
+
+In order to only run the tests, we create a new script entry in package.json
+="test:unit": "polymer test --module-resolution=node --npm"=
+
+By default, wct runs tests in all browsers that are installed on the system. As this is not
+what we want, we need to create a configuration file =wct.conf.json= that restricts the tests to
+run on chrome only.
+wct comes with a handy concept test-fixtures, that lets you define a template of content and
+copy it into each test suite, so you dont't run into side effects in your tests.
+
+In =rfk-app_test.html= we make use of the test-fixture. But as our element relies on a template definition
+that is defined in the document, we need to copy the template definition to the template as well.
+In a later iteration, we will improve this situation.
+
+Here is a snippet of our first testcase:
+
+#+begin_example html
+<body>
+  <template id="app-greeting">
+      <h1>Hello world</h1>
+  </template>
+  <test-fixture id="BasicTestFixture">
+    <template>
+      <rfk-app></rfk-app>
+    </template>
+  </test-fixture>
+...
+  <script type="module">
+    suite('rfk-app', () => {
+      test('app displays greeting', () => {
+        const element = fixture('BasicTestFixture');
+        const elementShadowRoot = element.shadowRoot;
+        const elementHeader = elementShadowRoot.querySelector('h1');
+        assert.equal(elementHeader.innerHTML, 'Hello world');
+      });
+    });
+  </script>
+#+end_example
+
+To run this test, you can either use the dedicated test script =npm run test:unit= which will only run the tests,
+or you can just =npm run start= and then navigate your browser to =http://localhost:3000/test/index.html= which will
+run the tests and provide a nice overview in the browser.
+
+
 
 
